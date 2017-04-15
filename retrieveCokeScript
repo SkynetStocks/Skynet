@@ -1,5 +1,5 @@
 import urllib2
-source = urllib2.urlopen('http://www.marketwatch.com/investing/stock/coke')
+source = urllib2.urlopen('http://www.marketwatch.com/investing/stock/ko')
 html =  source.readlines()
 for i in html:
 	place = i.find('"price"')

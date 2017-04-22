@@ -1,38 +1,78 @@
-#pragma once
-#include <iostream>
-#include <fstream>
-using namespace std;
+#include "Day_stocks.h"
 
-class Day_stocks
+Day_stocks::Day_stocks(const int numStocks, const int numValsStored)
 {
-public:
-   static const int DEFAULT_NUM_STOCKS = 2;
-   static const int MIN_NUM_STOCKS = 1;
+   if (numStocks < MIN_NUM_STOCKS)
+      this->numStocks = DEFAULT_NUM_STOCKS;
+   else
+      this->numStocks = numStocks;
+   if (numValsStored < MIN_NUM_VALS_STORED || numValsStored > MAX_NUM_VALS_STORED)
+      this->numValsStored = DEFAULT_NUM_VALS_STORED;
+   else
+      this->numValsStored = numValsStored;
 
-   static const int DEFAULT_NUM_VALS_STORED = 10;
-   static const int MIN_NUM_VALS_STORED = 1;
-   static const int MAX_NUM_VALS_STORED = 1000 * 1000 * 1000;
+   allocate();
+}
 
-private:
-   int numStocks;  // the number of stocks being stored (if NASDAQ, KO, AAPL then this value is 3)
-   int numValsStored; // the number of values being stored per stock
-   double **Stocks;
+void Day_stocks::allocate()
+{
+   Stocks = new double*[numStocks];
+   for (int stock = 0; stock < numStocks; stock++)
+      Stocks[stock] = new double[numValsStored];
+}
 
-public:
+void Day_stocks::deallocate()
+{
+   for (int stock = 0; stock < numStocks; stock++)
+      delete[] Stocks[stock];
+   delete[] Stocks;
+}
 
-   Day_stocks(const int numStocks = DEFAULT_NUM_STOCKS,
-      const int numValsStored = DEFAULT_NUM_VALS_STORED);
-   virtual ~Day_stocks() { deallocate(); }
+bool Day_stocks::Save()
+{
+   ofstream stockFile;
 
-   bool Save(); //saves the Days stocks to a binary file
-   bool Load(); //loads the Days stocks from a binary file
-   void printValues(); //couts the stock values
+   stockFile.open("Day", ios::out | ios::binary);
+   if (!stockFile)
+   {
+      return false;
+   }
+   stockFile.write((char*)Stocks, sizeof(Stocks));
+   stockFile.close();
+   return true;
+}
 
-   bool set(const int stockNumber, const int posToStore, const double val);
+bool Day_stocks::Load()
+{
+   ifstream stockFile;
+   stockFile.open("Day", ios::in | ios::binary);
+   if (!stockFile)
+   {
+      return false;
+   }
+   stockFile.read((char*)Stocks, sizeof(Stocks));
+   stockFile.close();
+   return true;
+}
 
-   class OutOfBoundsException {};
+void Day_stocks::printValues()
+{
+   for (int b = 0; b < numStocks; ++b)
+   {
+      for (int i = 0; i < numValsStored; ++i)
+      {
+         cout << " " << Stocks[b][i];
+      }
+      cout << "\n";
+   }
+}
 
-private:
-   void allocate();
-   void deallocate();
-};
+bool Day_stocks::set(const int stockNumber, const int posToStore, const double val)
+{
+   if (stockNumber < 0 || stockNumber >= numStocks ||
+      posToStore < 0 || posToStore >= numValsStored)
+      throw Day_stocks::OutOfBoundsException();
+
+   Stocks[stockNumber][posToStore] = val;
+   return true;
+}

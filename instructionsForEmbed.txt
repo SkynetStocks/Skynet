@@ -9,6 +9,9 @@ then input
 and under first box (Additional Dependencies), add path to python27.lib (or python36.lib) and then semicolon
 stuff;stuff;things;C:\folder1\folder2\Python27\libs\python27.lib
 
+LINKER ERROR: cannot find python27_d
+fix: project->configurationManager->switch from debug to release
+also, make sure to include path everywhere
 
 THIS IS THE COMMAND THAT WORKED!!!
 argv[0] (i think)           argv[1]           argv[2]  argv[others]

@@ -2,6 +2,16 @@ import numpy
 import tensorflow as tf
 
 class Dataset:
+    """
+    A dataset to store the information for a input-output set of data.
+    Furthermore, this is the class where data will be taken from to feed the
+    neural network.
+    It has two parts:
+    multisets and labels.
+    The multisets are the inputs while the labels are the outputs.
+    Each multiset has a corresponding label and while the number of elements
+    in each multiset may change, each multiset should always have one label.
+    """
     def __init__(self, multisets, labels):
         self._num_examples = multisets.shape[0]
         self._multisets = multisets
@@ -61,17 +71,31 @@ class Dataset:
             return self._multisets[start:end], self._labels[start:end] 
 
 class Datasets:
+    """
+    This class stores ALL of the data. The training, testing, and validation
+    data is all stored here as instances of the Dataset class.
+    """
     def __init__(self, train, test):
         self.train = train
         self.test = test
 
 def readNextInt(myStr):
+    """
+    A method that takes an input string and returns an the next integer
+    present in the string. This assumes the integer starts at position 0
+    of the string. It also returns the index where the integer ends.
+    """
     endIndex = myStr.find(',')
     num = myStr[:endIndex]
     num = int(num)
     return num, endIndex
 
 def readNextFloat(myStr):
+    """
+    A method that takes an input string and returns an the next float
+    present in the string. This assumes the float starts at position 0
+    of the string. It also returns the index where the float ends.
+    """
     endIndex = myStr.find(',')
     if endIndex != -1:
         num = myStr[:endIndex]
@@ -81,6 +105,11 @@ def readNextFloat(myStr):
     return num, endIndex
 
 def createDataset(filePath):
+    """
+    Given a file path, this method will read through the file and create
+    a the inputs and outputs for a single Dataset then it will return a
+    Dataset instance.
+    """
     #create np array with all the numbers
     #reshape the array to (numMultisets, numElementsPerSet)
     with open(filePath) as file:
@@ -103,10 +132,16 @@ def createDataset(filePath):
             labels = numpy.append(labels, num)
 
     multisets = multisets.reshape(num_examples, elementsPerMultiset)
-        
+    labels = labels.reshape(num_examples, 1)
+    
     return Dataset(multisets, labels);
 
 def read_data_sets():
+    """
+    This method creates the training, testing and validation instances of
+    the Dataset class then it returns them all grouped up in an instance
+    of the Datasets class.
+    """
     train = createDataset("training-multisets.txt")
     test =  createDataset("testing-multisets.txt")
     return Datasets(train=train, test=test)
@@ -140,12 +175,11 @@ sess = tf.InteractiveSession()
 tf.global_variables_initializer().run()
 # Train
 for _ in range(1000):
-    batch_xs, batch_ys = allData.train.next_batch(5)
+    batch_xs, batch_ys = allData.train.next_batch(20)
     sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
 # Test trained model
 correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-print(sess.run(accuracy, feed_dict={x: allData.test.images,
+print(sess.run(accuracy, feed_dict={x: allData.test.multisets,
                                   y_: allData.test.labels}))
-

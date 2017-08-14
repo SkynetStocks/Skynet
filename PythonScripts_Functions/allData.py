@@ -1,10 +1,24 @@
 import urllib2
+stockData = ''
+companyData = ''
+tinoData = '' 
+def updateUrl(s):
+	string = 'http://www.marketwatch.com/investing/stock/' + s
+	source = urllib2.urlopen(string)
+	global stockData
+	stockData = source.readlines()
+	string = 'http://www.marketwatch.com/investing/stock/'+s+'/profile'
+	source = urllib2.urlopen(string)
+	global companyData
+	companyData =  source.readlines()
+	string = 'https://weather.com/weather/today/l/37.32,-122.03?temp=f&par=google'
+	source = urllib2.urlopen(string)
+	global tinoData
+	tinoData =  source.readlines()
 
 # stock data: value, volume, NASDAQ, dow jones, s&p
 def anyStock(s):
-	string = 'http://www.marketwatch.com/investing/stock/' + s
-	source = urllib2.urlopen(string)
-	html =  source.readlines()
+	html =  stockData
 	for i in html:
 		place = i.find('"price"')
 		if place !=-1:
@@ -24,9 +38,7 @@ def anyStock(s):
 			break
 
 def anyVolume(s):
-	string = 'http://www.marketwatch.com/investing/stock/' + s
-	source = urllib2.urlopen(string)
-	html =  source.readlines()
+	html =stockData
 	for i in range(0,len(html)):
 		if (html[i].find('Average Volume')) != (-1):
 			place = 0
@@ -117,9 +129,7 @@ def sp():
 
 #company data: revenue, employees, and net income
 def anyRev(s):
-	string = 'http://www.marketwatch.com/investing/stock/'+s+'/profile'
-	source = urllib2.urlopen(string)
-	html =  source.readlines()
+	html =  companyData
 	for i in range(0,len(html)):
 		place = html[i].find('>Revenue<')
 		if place !=-1:
@@ -128,9 +138,7 @@ def anyRev(s):
 			str1 = html[i+1]
 			return float(str1[place+3:end-1])
 def anyEmp(s):
-	string = 'http://www.marketwatch.com/investing/stock/'+s+'/profile'
-	source = urllib2.urlopen(string)
-	html =  source.readlines()
+	html =  companyData
 	for i in range(0,len(html)):
 		place = html[i].find('>Employees<')
 		if place !=-1:
@@ -140,9 +148,7 @@ def anyEmp(s):
 			#fix this, remove punctuation and turn to double
 
 def anyInc(s):
-	string = 'http://www.marketwatch.com/investing/stock/'+s+'/profile'
-	source = urllib2.urlopen(string)
-	html =  source.readlines()
+	html =  companyData
 	for i in range(0,len(html)):
 		place = html[i].find('>Net Income<')
 		if place !=-1:
@@ -154,9 +160,7 @@ def anyInc(s):
 
 # cupertino weather data: temp, humidity, visibility, wind speed
 def cupertinoTemp():
-	string = 'https://weather.com/weather/today/l/37.32,-122.03?temp=f&par=google'
-	source = urllib2.urlopen(string)
-	html =  source.readlines()
+	html =  tinoData
 	for i in html:
 		correctLine = i.find('window.__data')
 		if correctLine !=-1:
@@ -175,9 +179,7 @@ def cupertinoTemp():
 
 
 def tinoHumid():
-	string = 'https://weather.com/weather/today/l/37.32,-122.03?temp=f&par=google'
-	source = urllib2.urlopen(string)
-	html =  source.readlines()
+	html =  tinoData
 	for i in html:
 		correctLine = i.find('window.__data')
 		if correctLine !=-1:
@@ -195,9 +197,7 @@ def tinoHumid():
 			return float(s)
 
 def tinoVis():
-	string = 'https://weather.com/weather/today/l/37.32,-122.03?temp=f&par=google'
-	source = urllib2.urlopen(string)
-	html =  source.readlines()
+	html =  tinoData
 	for i in html:
 		correctLine = i.find('window.__data')
 		if correctLine !=-1:
@@ -216,9 +216,7 @@ def tinoVis():
 
 
 def tinoWind():
-	string = 'https://weather.com/weather/today/l/37.32,-122.03?temp=f&par=google'
-	source = urllib2.urlopen(string)
-	html =  source.readlines()
+	html =  tinoData
 	for i in html:
 		correctLine = i.find('window.__data')
 		place = i.find('"windSpeed"')

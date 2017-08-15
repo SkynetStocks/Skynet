@@ -1,3 +1,7 @@
+/*
+ * This piece of code grabs the saved stock values and creates 2 input-output datasets. One is the training and the other the testing.
+ */
+
 #include <iostream>
 #include <fstream>
 #include "stockLoader.h"

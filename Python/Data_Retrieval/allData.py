@@ -1,20 +1,35 @@
 import urllib2
+
+# global variables that store html for all URls used more than once
 stockData = ''
 companyData = ''
 tinoData = '' 
+
+#function that assigns the above three variables to the most up to date html
 def updateUrl(s):
-	string = 'http://www.marketwatch.com/investing/stock/' + s
-	source = urllib2.urlopen(string)
-	global stockData
-	stockData = source.readlines()
-	string = 'http://www.marketwatch.com/investing/stock/'+s+'/profile'
-	source = urllib2.urlopen(string)
-	global companyData
-	companyData =  source.readlines()
-	string = 'https://weather.com/weather/today/l/37.32,-122.03?temp=f&par=google'
-	source = urllib2.urlopen(string)
-	global tinoData
-	tinoData =  source.readlines()
+	#assigning stockData
+	try:
+		#the url being used
+		string = 'http://www.marketwatch.com/investing/stock/' + s
+		# opening the url
+		source = urllib2.urlopen(string)
+		#assigning source to the global variable stock data
+		global stockData
+		stockData = source.readlines()
+	
+		#same as above but for companydata
+		string = 'http://www.marketwatch.com/investing/stock/'+s+'/profile'
+		source = urllib2.urlopen(string)
+		global companyData
+		companyData =  source.readlines()
+
+		#same as above but for tinoData
+		string = 'https://weather.com/weather/today/l/37.32,-122.03?temp=f&par=google'
+		source = urllib2.urlopen(string)
+		global tinoData
+		tinoData =  source.readlines()
+	except:
+		return -1
 
 # stock data: value, volume, NASDAQ, dow jones, s&p
 def anyStock(s):
@@ -55,76 +70,85 @@ def anyVolume(s):
 			
 	# cant use this because value will be on i + 1 if 'Average Volume' is found on i
 def nasdaq():
-	source = urllib2.urlopen('http://www.nasdaq.com/')
-	html =  source.readlines()
-	# html has been read in
-	counter = 0
-	for i in html:
-		# loop through the html line by line
-		place = i.find('"NASDAQ"')
-		if place !=-1:
-			# if "NASDAQ" is in line
-			place+=1
-			while place<len(i):
-				try:
-					int(i[place])
-					break
-				except:
-					place+=1
-			if place == len(i):
-				continue
-			first = place
-			while place<len(i) and i[place] != '.':
+	try:
+		source = urllib2.urlopen('http://www.nasdaq.com/')
+		html =  source.readlines()
+		# html has been read in
+		counter = 0
+		for i in html:
+			# loop through the html line by line
+			place = i.find('"NASDAQ"')
+			if place !=-1:
+				# if "NASDAQ" is in line
 				place+=1
-			if place != len(i):
-				return float(i[first:place+3])
-				break
+				while place<len(i):
+					try:
+						int(i[place])
+						break
+					except:
+						place+=1
+				if place == len(i):
+					continue
+				first = place
+				while place<len(i) and i[place] != '.':
+					place+=1
+				if place != len(i):
+					return float(i[first:place+3])
+					break
+	except:
+		return -1
 
 
 def dowjones():
-	source = urllib2.urlopen('http://www.marketwatch.com/investing/index/djia')
-	html =  source.readlines()
-	for i in html:
-		place = i.find('"price"')
-		if place !=-1:
-			cont = True
-			while cont:
-				place += 1
-				try:
-					int(i[place])
-					cont = False
-				except:
-					cont = True
-			start = place
-			while i[place] != '.':
-				place += 1
-			string = i[start:place+3]
-			nstring = string.replace(',','')
-			return float(nstring)
-			break
+	try:
+		source = urllib2.urlopen('http://www.marketwatch.com/investing/index/djia')
+		html =  source.readlines()
+		for i in html:
+			place = i.find('"price"')
+			if place !=-1:
+				cont = True
+				while cont:
+					place += 1
+					try:
+						int(i[place])
+						cont = False
+					except:
+						cont = True
+				start = place
+				while i[place] != '.':
+					place += 1
+				string = i[start:place+3]
+				nstring = string.replace(',','')
+				return float(nstring)
+				break
+	except:
+		return -1
 
 def sp():
-	source = urllib2.urlopen('http://data.cnbc.com/quotes/.SPX')
-	html =  source.readlines()
-	for i in html:
-		place = i.find('"last"')
-		if place !=-1:
-			# if "NASDAQ" is in line
-			place+=1
-			while place<len(i):
-				try:
-					int(i[place])
-					break
-				except:
-					place+=1
-			if place == len(i):
-				continue
-			first = place
-			while place<len(i) and i[place] != '.':
+	try:
+		source = urllib2.urlopen('http://data.cnbc.com/quotes/.SPX')
+		html =  source.readlines()
+		for i in html:
+			place = i.find('"last"')
+			if place !=-1:
+				# if "NASDAQ" is in line
 				place+=1
-			if place != len(i):
-				return float(i[first:place+3])
-				break
+				while place<len(i):
+					try:
+						int(i[place])
+						break
+					except:
+						place+=1
+				if place == len(i):
+					continue
+				first = place
+				while place<len(i) and i[place] != '.':
+					place+=1
+				if place != len(i):
+					return float(i[first:place+3])
+					break
+	except:
+		return -1
 
 
 #company data: revenue, employees, and net income
@@ -236,25 +260,28 @@ def tinoWind():
 
 #new york weather: temp
 def NYTemp():
-	string = 'https://weather.com/weather/today/l/USNY0996:1:US'
-	source = urllib2.urlopen(string)
-	html =  source.readlines()
-	for i in html:
-		correctLine = i.find('window.__data')
-		if correctLine !=-1:
-			place = i.find('"temperature":')
-			cont = True
-			start = place +14
-			place = start
-			while cont:
-				try:
-					int(i[place])
-					place+=1
-				except:
-					cont = False
-			s = i[start:place]
-			return float(s)
-			break
+	try:
+		string = 'https://weather.com/weather/today/l/USNY0996:1:US'
+		source = urllib2.urlopen(string)
+		html =  source.readlines()
+		for i in html:
+			correctLine = i.find('window.__data')
+			if correctLine !=-1:
+				place = i.find('"temperature":')
+				cont = True
+				start = place +14
+				place = start
+				while cont:
+					try:
+						int(i[place])
+						place+=1
+					except:
+						cont = False
+				s = i[start:place]
+				return float(s)
+				break
+	except:
+		return -1
 
 
 def displayAll(s):

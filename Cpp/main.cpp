@@ -1,24 +1,17 @@
-/*
- * This piece of code grabs the saved stock values and creates 2 input-output datasets. One is the training and the other the testing.
- */
-
-#include <iostream>
-#include <fstream>
 #include "stockLoader.h"
-
-using namespace std;
+#include <fstream>
 
 vector<vector<stockNode>> getVectorOfData(date startDate, date endDate, size_t numDaysPerRow = 30);
-void saveTrainingData(vector<vector<stockNode>> allData, size_t startIndex, size_t endIndex);
-void saveTestingData(vector<vector<stockNode>> allData, size_t startIndex, size_t endIndex);
+void saveData(const string name, vector<vector<stockNode>> allData, size_t startIndex, size_t endIndex);
 
 int main()
-{
-   vector<vector<stockNode>> allData = getVectorOfData(date(2016, 6, 7), date(2017, 5, 1));
-   size_t threeFourthsPoint = (size_t)(3.0 * allData.size() / 4);
-   saveTrainingData(allData, 0, threeFourthsPoint);
-   saveTestingData(allData, threeFourthsPoint + 1, allData.size() - 1);
-	return 0;
+{ 
+   vector<vector<stockNode>> allData = getVectorOfData(date(2016, 6, 7), date(2017, 5, 1), 30);
+   size_t sixtyPercentPoint = (size_t)(3.0 * allData.size() / 5);
+   saveData("training-multisets.txt", allData, 0, sixtyPercentPoint);
+   saveData("testing-multisets.txt", allData, sixtyPercentPoint + 1, allData.size() - 1);
+
+   return 0;
 }
 
 vector<vector<stockNode>> getVectorOfData(date startDate, date endDate, size_t numDaysPerRow)
@@ -48,7 +41,7 @@ vector<vector<stockNode>> getVectorOfData(date startDate, date endDate, size_t n
             currentEndDate.getMonthUI(),
             currentEndDate.getDayUI(),
             1, 1, 1),
-         24, 1);
+         numDaysPerRow, 1);
       allData.push_back(subSet->getPoints());
    }
 
@@ -58,41 +51,33 @@ vector<vector<stockNode>> getVectorOfData(date startDate, date endDate, size_t n
    return allData;
 }
 
-void saveTrainingData(vector<vector<stockNode>> allData, size_t startIndex, size_t endIndex)
+void saveData(const string name, vector<vector<stockNode>> allData, size_t startIndex, size_t endIndex)
 {
    ofstream myfile;
-   myfile.open("training-multisets.txt");
+   myfile.open(name);
 
-   size_t numData = endIndex - startIndex + 1;
-   size_t numValuesPerDatum = allData[0].size() - 1;
+   const size_t TOTAL_NUM_DATA = endIndex - startIndex + 1;
+   const size_t NUM_VALUES_PER_DATUM = allData[0].size() - 1;
+   const size_t NUM_VALUES_PER_LABEL = 1;
 
-   myfile << numData << "," << numValuesPerDatum;
+   myfile << TOTAL_NUM_DATA << "," << NUM_VALUES_PER_DATUM << "," << NUM_VALUES_PER_LABEL;
    for (size_t i = startIndex; i <= endIndex; i++)
    {
       myfile << '\n';
-      for (size_t j = 0; j < numValuesPerDatum; j++)
-         myfile << allData[i][j].getValue() << ",";
-      myfile << allData[i][numValuesPerDatum].getValue();
-   }
+      for (size_t j = 0; j < NUM_VALUES_PER_DATUM; j++)
+      {
+         myfile << allData[i][j].getValue() << ','; // replace with open value
+         // myfile << allData[i][j].getClosingValue() << ',';
+         // myfile << allData[i][j].getHighValue() << ',';
+         // myfile << allData[i][j].getLowValue();
+         if (j < NUM_VALUES_PER_DATUM - 1)
+            myfile << ',';
+         else
+            myfile << '\n';
+      }
 
-   myfile.close();
-}
-
-void saveTestingData(vector<vector<stockNode>> allData, size_t startIndex, size_t endIndex)
-{
-   ofstream myfile;
-   myfile.open("testing-multisets.txt");
-
-   size_t numData = endIndex - startIndex + 1;
-   size_t numValuesPerDatum = allData[0].size() - 1;
-
-   myfile << numData << "," << numValuesPerDatum;
-   for (size_t i = startIndex; i <= endIndex; i++)
-   {
-      myfile << '\n';
-      for (size_t j = 0; j < numValuesPerDatum; j++)
-         myfile << allData[i][j].getValue() << ",";
-      myfile << allData[i][numValuesPerDatum].getValue();
+      double last = allData[i][NUM_VALUES_PER_DATUM].getValue();
+      myfile << last;
    }
 
    myfile.close();

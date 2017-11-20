@@ -22,6 +22,17 @@ date::~date()
 
 bool date::isLeapYear(int yVal)
 {
+	if (yVal % 4 == 0)
+	{
+		if (yVal % 100 == 0 || yVal % 400 == 0)
+		{
+			return true;
+		}
+		else if (yVal % 100 != 0)
+		{
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -133,6 +144,7 @@ date& date::operator++()
 	//cout << d.getDay() << endl;
 	d.addDay(1);
 	//cout << d.getDay() << endl;
+	//cout << daysPerMonth(m.getMonth(), y.getYear()) << endl;
 	if (d.getDay() > daysPerMonth(m.getMonth(), y.getYear()))
 	{
 		d.setDay(1);

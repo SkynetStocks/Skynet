@@ -107,6 +107,36 @@ double stockSampler::getValue(date_time dt, double& uncertainty)//Linear interpo
 	}
 }
 
+double stockSampler::getMaxValue()
+{
+	stockNode* itr = pHead;
+	bool done = false;
+	double maxVal = 0;
+	while (!done)
+	{
+		maxVal = MAX(maxVal, itr->getValue());
+		itr = itr->getNext();
+		if (itr->getNext() == nullptr)
+			done = true;
+	}
+	return maxVal;
+}
+
+double stockSampler::getMinValue()
+{
+	stockNode* itr = pHead;
+	bool done = false;
+	double maxVal = 0;
+	while (!done)
+	{
+		maxVal = MIN(maxVal, itr->getValue());
+		itr = itr->getNext();
+		if (itr->getNext() == nullptr)
+			done = true;
+	}
+	return maxVal;
+}
+
 void stockSampler::clear()
 {
 	delete pHead->getNext(); //recusivly implemented in stockNode destructor
@@ -118,7 +148,7 @@ stockSampler* stockSampler::getSubset(date_time start, date_time end, unsigned i
 	stockSampler* newSample = new stockSampler();
 	double samplePoint;
 	date_time validSamplePoint;
-	//need to make a starting point for all time(at least for the market)
+
 	date_time zeroVal(start.getDate(), T::time(1, 1, 1));
 	zeroVal.getDate().setYear(zeroVal.getDate().getYearI() - 1);
 	int startSec = start.diffSeconds(zeroVal);
@@ -147,7 +177,7 @@ stockSampler* stockSampler::getSubset(date_time start, date_time end, unsigned i
 		samplePoint = (-yIntercept + sqrt(pow(yIntercept, 2) - 4 * slope*c)) / (2 * slope);///quadratic formula
 		areaPos += stepSize;
 
-		//samplePoint = ((samplePoint) - yIntercept)/slope;
+		samplePoint = ((samplePoint) - yIntercept)/slope;
 		//cout << "sample Point:" << samplePoint << endl;
 		validSamplePoint = zeroVal;
 		//add number of seconds in sample point
@@ -191,11 +221,14 @@ vector<double> stockSampler::getPointsd()
 	bool done = false;
 	if (isEmpty()) //if the stockSampler is empty return no values
 	{
+		//cout << "is empty\n";
 		return values;
 	}
 	stockNode* itr = pHead->getNext();
 	while (!done)
 	{
+		//cout << "next address:" << itr->getNext() << endl;
+		//cout << "value:" << itr->getValue() << " uncertainty:" << itr->getUncertainty() << endl;
 		values.push_back(itr->getValue());
 		if (itr->getNext() == nullptr)
 			done = true;

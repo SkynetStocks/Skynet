@@ -20,6 +20,7 @@ bool stockLoader::initialise()
 		con->setSchema(database);
 		stmt = con->createStatement();
 		initialised = true;
+		return true;
 	}
 	catch (sql::SQLException &e)
 	{

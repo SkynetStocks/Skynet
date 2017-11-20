@@ -33,11 +33,19 @@ void T::time::addSecond(second termS)
 		unsigned int hS= s.getSecond() / (60*60);
 		unsigned int mS = (s.getSecond() - (hS * 60*60)) / 60;
 		unsigned int sS = s.getSecond() - hS * (60*60) - mS * 60; //dont judge the variable name
-		//cout << "hs:" << hS << " mS:" << mS << " sS:" << sS << endl << endl;
+		//cout << "hs:" << hS << " mS:" << mS << " sS:" << sS << endl;
 		s.setSecond(sS);
 		m.addMinute(mS);
 		h.addHour(hS);
 	}
+	if (m.getMinute() > 59)
+	{
+		unsigned int hS = m.getMinute() /  60;
+		unsigned int mS = (m.getMinute() - hS * 60);
+		m.setMinute(mS);
+		h.addHour(hS);
+	}
+	//cout << "done adding seconds\n";
 }
 
 void T::time::subHour(hour termH)

@@ -64,6 +64,16 @@ void date_time::addSeconds(second sVal) //better method needed
 	//cout << "sVal:" << sVal.getSecond() << endl;
 	//cout << "seconds to be added to time:" << sVal.getSecond() - daysToBeAdded * 60 * 60 * 24 << endl;
 	t.addSecond(sVal.getSecond() - daysToBeAdded * 60 * 60 * 24);
+	if (t.getHourI() >= 24)
+	{
+		daysToBeAdded = t.getHourI() / 24;
+		for (unsigned int i = 0; i < daysToBeAdded; ++i)
+		{
+			++d;
+		}
+		t.setHour(t.getHourI() - 24 * daysToBeAdded);
+	}
+	//cout << "done adding days and seconds\n";
 }
 
 void date_time::addDays(unsigned int val)

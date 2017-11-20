@@ -1,5 +1,6 @@
 #pragma once
 #include "date_time.h"
+#include "analysis.h"
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -42,6 +43,8 @@ public:
 	void insert(date_time, double, double); //entrypoint, value, uncertainty value
 	bool remove(date_time); //returns if entry exists or not
 	double getValue(date_time, double& uncertainty); //returns a value with linear interpolation between points, the uncertainty is passed by reference to the user of the function via the parameter uncertainty
+	double getMaxValue();
+	double getMinValue();
 	void clear();//removes all entrys
 	bool isEmpty() {return !pHead->getNext(); }
 	stockSampler* getSubset(date_time start, date_time end, unsigned int sampleNumber, double slope);

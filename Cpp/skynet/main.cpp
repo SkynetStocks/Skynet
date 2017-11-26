@@ -11,12 +11,25 @@ int main()
 		cout << "failed to intialise\n";
 		return -1;
 	}
-	
+
 	cout << "training\n";
 
-	double learningRate = 4;
-	networkMgr.train(date_time(2004, 1, 1, 1, 1, 1), date_time(2006, 1, 1, 1, 1, 1),2000,20*60*60*24,60*60*24, learningRate);
-	networkMgr.run(date_time(2006, 1, 1, 1, 1, 1), date_time(2010, 1, 1, 1, 1, 1), 2000, 20 * 60 * 60 * 24, 60 * 60 * 24);
+	vector<double> rms; //stores the root means squared of each run
+	char buffer[255];
+
+	for (unsigned int i = 0; i < 100; ++i)
+	{
+		sprintf_s(buffer, "testData_%d.csv", i);
+		networkMgr.train(date_time(2004, 1, 1, 1, 1, 1), date_time(2015, 1, 1, 1, 1, 1), 4000, 20 * 60 * 60 * 24, 60 * 60 * 24, 0.1, "delete");
+		rms.push_back(networkMgr.train(date_time(2004, 1, 1, 1, 1, 1), date_time(2015, 1, 1, 1, 1, 1), 4000, 20 * 60 * 60 * 24, 60 * 60 * 24, 0.1, buffer));
+		networkMgr.reset();
+	}
+
+	vector<vector<double>> lRRms; //combines learning rate and rms, needs better name but well whatever
+	//lRRms.push_back(lR);
+	lRRms.push_back(rms);
+	createCSV(lRRms, "exponentialSampling.csv");
+
 
 
 	return 0;

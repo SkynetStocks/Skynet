@@ -10,6 +10,14 @@ public:
 	void assignInputs(vector<double> iN); //should change input to vector
 	vector<double> getOutputs();
 	double train(vector<double> expectedOutputs, double learningRate); //queue rocky music
+	double getError(vector<double> expectedOutputs); //returns the error of the last run
+	void resetWeights();
+
+	//get netork details
+	unsigned int getNoInputs() { return inputs; }
+	unsigned int getNoOutputs() { return outputs; }
+	unsigned int getNoHiddenLayers() { return hiddenLayers; }
+	unsigned int getHiddenLayerWidth() { return width; }
 private:
 	const unsigned int inputs, outputs, hiddenLayers, width; //holds the defined number of inputs and outputs of the network
 	vector<vector<node*>> nodeMesh;

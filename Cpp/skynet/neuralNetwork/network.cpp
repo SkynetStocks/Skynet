@@ -71,7 +71,7 @@ void network::assignInputs(vector<double> in)
 
 vector<double> network::getOutputs()
 {
-	cout << "getting outputs\n";
+	//cout << "getting outputs\n";
 	vector<double> out;
 	for (unsigned int i = 0; i < outputs; ++i)
 	{
@@ -102,6 +102,30 @@ double  network::train(vector<double> expectedOutputs, double learningRate)
 	}
 
 	return totalError;
+}
+
+double network::getError(vector<double> expectedOutputs)
+{
+	vector<double> outputs;
+	for (unsigned int i = 0; i < nodeMesh[0].size(); ++i)
+	{
+		outputs.push_back(nodeMesh[0][i]->getStoredOutput());
+	}
+
+	double totalError = quadraticCost(outputs, expectedOutputs);
+
+	return totalError;
+}
+
+void network::resetWeights()
+{
+	for (unsigned int i = 0; i < nodeMesh.size() - 1; ++i) //itterate through output and hidden layers skip input layer
+	{
+		for (unsigned int b = 0; b < nodeMesh[i].size(); ++b) //itterate through layer
+		{
+			nodeMesh[i][b]->assignRandomWeights(); //give the node a randomized weights
+		}
+	}
 }
 
 double network::quadraticCost(vector<double> output, vector<double> desiredOutput)

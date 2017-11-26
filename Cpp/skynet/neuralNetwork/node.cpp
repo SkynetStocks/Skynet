@@ -53,7 +53,7 @@ void node::backPropogate(double target)
 	if (nodeType == 2) // if it is an output node
 	{
 		nodeDelta = (outputVal - target)*activationFunctionDerivative(outputVal, 1);
-		cout << "nodeDelta:" << nodeDelta << endl;
+		//cout << "nodeDelta:" << nodeDelta << endl;
 
 		for (unsigned int i = 0; i < inputs.size(); ++i)
 		{
@@ -105,7 +105,7 @@ double node::tanHyperbolic(double val, double lambda)
 
 double node::unipolarSigmoidDerivative(double val, double lambda)
 {
-	return val*unipolarSigmoid(val, lambda)*(1 - unipolarSigmoid(val, lambda));
+	return lambda*val*(1 - val);
 }
 
 double node::bipolarSigmoidDerivative(double val, double lambda)
@@ -115,7 +115,7 @@ double node::bipolarSigmoidDerivative(double val, double lambda)
 
 double node::tanHyperbolicDerivative(double val, double lambda)
 {
-	return val*(1 - pow(tanHyperbolic(val, lambda), 2));
+	return lambda*(1-pow(val,2));
 }
 
 double node::activationFunction(double val, double lambda) //function allows for easy switching of activation functions

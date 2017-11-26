@@ -52,5 +52,15 @@ public:
 	vector<double> getPointsd();
 private:
 	stockNode* pHead;//token head, no actuall value
+
+	double getArea(double start, double end, double slope);
+	double areaExponential(double start, double end, double slope);
+	double areaLinear(double start, double end, double slope);
+	double areaConstant(double start, double end, double slope);
+
+	double getNextSampleTime(double, double, double);
+	double nextExponentialPoint(double, double, double);
+	double nextLinearPoint(double, double, double);
+	double nextConstantPoint(double, double, double);
 };
 

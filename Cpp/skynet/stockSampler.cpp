@@ -148,7 +148,7 @@ stockSampler* stockSampler::getSubset(date_time start, date_time end, unsigned i
 	stockSampler* newSample = new stockSampler();
 	double samplePoint;
 	date_time validSamplePoint;
-
+	//need to make a starting point for all time(at least for the market)
 	date_time zeroVal(start.getDate(), T::time(1, 1, 1));
 	zeroVal.getDate().setYear(zeroVal.getDate().getYearI() - 1);
 	int startSec = start.diffSeconds(zeroVal);
@@ -156,37 +156,31 @@ stockSampler* stockSampler::getSubset(date_time start, date_time end, unsigned i
 	//cout << "startSec:" << startSec << " endSec:" << endSec << endl;
 	//cout << "secDiff:" << endSec - startSec << endl;
 
-	double yIntercept = -slope*startSec;
-	double area = slope*pow(endSec, 2) + yIntercept*endSec - slope*pow(startSec, 2) - yIntercept*startSec;
-	double maxProbability = (slope*endSec + yIntercept); //probability at end point
-	double stepSize = area / sampleNumber;
-	//cout << "stepSize:" << stepSize << endl;
+	double area = getArea(startSec, endSec, slope);
+	double areaStepSize = area / sampleNumber;
+	//cout << "areaStepSize:" << areaStepSize << endl;
 	//cout << "area:" << area << endl;
-	//cout << "maxProbability:" << maxProbability << endl;
 	//cout << "yIntercept:" << yIntercept << endl;
 	//cout << (slope*endSec + yIntercept) << endl;
 	//cout << (slope*startSec + yIntercept) << endl;
 
-	double areaPos = stepSize/2;
-	for (int i = 0; i <= sampleNumber; ++i)
-	{
-		//cout << "sample number:" << i << endl;
-		//calculate point for sampling
-		//cout << "areaPos:" << areaPos << endl;
-		double c = -slope*pow(startSec, 2) - yIntercept*(startSec) -  areaPos;
-		samplePoint = (-yIntercept + sqrt(pow(yIntercept, 2) - 4 * slope*c)) / (2 * slope);///quadratic formula
-		areaPos += stepSize;
+	validSamplePoint = end;
 
-		samplePoint = ((samplePoint) - yIntercept)/slope;
-		//cout << "sample Point:" << samplePoint << endl;
-		validSamplePoint = zeroVal;
-		//add number of seconds in sample point
-		validSamplePoint.addSeconds(int(samplePoint));
-		//cout << "y:" << validSamplePoint.getYearI() << " m:" << validSamplePoint.getMonthUI() << " d:" << validSamplePoint.getDayUI() << " h:" << validSamplePoint.getHourI() << " m:" << validSamplePoint.getMinuteI() << " s:" << validSamplePoint.getSecondI() << endl;
+	for (int i = 0; i < sampleNumber; ++i)
+	{
+
+
 		double uncertainty;
 		double value = getValue(validSamplePoint, uncertainty);
-		//cout << "uncertainty:" << uncertainty << endl;
-		newSample->insert(validSamplePoint,value, uncertainty);
+		newSample->insert(validSamplePoint, value, uncertainty);
+		double samplePoint = validSamplePoint.diffSeconds(zeroVal);
+		//cout << "y:" << validSamplePoint.getYearI() << " m:" << validSamplePoint.getMonthUI() << " d:" << validSamplePoint.getDayUI() << " h:" << validSamplePoint.getHourI() << " m:" << validSamplePoint.getMinuteI() << " s:" << validSamplePoint.getSecondI() << endl;
+		//cout << "samplePoint:" << samplePoint << endl;
+		//cout << "i:" << i << endl;
+		//cout << "next sample point:" << getNextSampleTime(samplePoint, areaStepSize) << endl;
+
+		validSamplePoint = zeroVal;
+		validSamplePoint.addSeconds(int(getNextSampleTime(samplePoint, areaStepSize, slope)));
 	}
 	//cout << "done";
 	return newSample;
@@ -236,4 +230,62 @@ vector<double> stockSampler::getPointsd()
 			itr = itr->getNext();
 	}
 	return values;
+}
+
+
+double stockSampler::getArea(double start, double end, double slope)
+{
+	return areaConstant(start, end, slope);
+}
+
+double stockSampler::areaExponential(double start, double end, double slope)
+{
+	slope /= 10000000;
+	return (exp(end*slope) - exp(start*slope)) / slope;
+}
+
+double stockSampler::areaLinear(double start, double end, double slope)
+{
+	return 0.5*slope*(pow(end, 2) - pow(start, 2));
+}
+
+double stockSampler::areaConstant(double start, double end, double slope)
+{
+	return end - start;
+}
+
+
+
+
+
+double stockSampler::getNextSampleTime(double previousPoint, double subdivisionArea, double slope)
+{
+	return nextConstantPoint(previousPoint, subdivisionArea, slope);
+}
+
+double stockSampler::nextExponentialPoint(double previousPoint, double subdivisionArea, double slope)
+{
+	slope /= 10000000;
+	double x = exp(previousPoint*slope) - slope*subdivisionArea;
+	//cout << "x:" << x << endl;
+	if (x < 1)
+		x = 1;
+	return log(x) / slope;
+}
+
+double stockSampler::nextLinearPoint(double previousPoint, double subdivisionArea, double slope)
+{
+	double x = pow(previousPoint, 2) - (2 / slope) * subdivisionArea;
+	//cout << "x:" << x << endl;
+	if (x < 0)
+		x = 0;
+	return sqrt(x);
+}
+
+double stockSampler::nextConstantPoint(double previousPoint, double subdivisionArea, double slope)
+{
+	double x = previousPoint - subdivisionArea;
+	if (x < 0)
+		x = 0;
+	return x;
 }

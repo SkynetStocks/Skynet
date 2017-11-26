@@ -10,10 +10,11 @@ public:
 	skynet();
 	virtual ~skynet();
 	bool intitalise(const char* , date_time , date_time , unsigned int , unsigned int , unsigned int , unsigned int ); //initializes the network
-	void train(date_time start, date_time end, unsigned int noItt, unsigned int subSampleLength, unsigned int outputDistance, double learningRate); //trains the network over a period of time, noItt is the number of times the network trains, subSampleLength & outputDistance is in seconds
-	void run(date_time start, date_time end, unsigned int noItt, unsigned int subSampleLength, unsigned int outputDistance); //runs the network over a period of time, same as train function
+	double train(date_time start, date_time end, unsigned int noItt, unsigned int subSampleLength, unsigned int outputDistance, double learningRate, const char* outputFile); //trains the network over a period of time, noItt is the number of times the network trains, subSampleLength & outputDistance is in seconds
+	double run(date_time start, date_time end, unsigned int noItt, unsigned int subSampleLength, unsigned int outputDistance, const char* outputFile); //runs the network over a period of time, same as train function
 	void load(const char*); //saves the network as a file
 	void save(const char*); //loads the network from a file
+	void reset();
 private:
 	double normalize(double);
 	double denormalize(double);

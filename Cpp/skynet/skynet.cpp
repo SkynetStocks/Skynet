@@ -32,23 +32,24 @@ bool skynet::intitalise(const char* stock, date_time minDate, date_time maxDate,
 	offset = -1; // to place in range of [-1,1]
 	return true;
 }
-void skynet::train(date_time start, date_time end, unsigned int noItt, unsigned int subSampleLength, unsigned int outputDistance, double learningRate)
+double skynet::train(date_time start, date_time end, unsigned int noItt, unsigned int subSampleLength, unsigned int outputDistance, double learningRate, const char* outputFile)
 {
-	vector<double> inputs, output, networkOutput, outputAnalysis, networkOutputAnalysis, diffSquared;
+	vector<double> inputs, output, networkOutput, outputAnalysis, networkOutputAnalysis, diffSquared, sumError;
 	double uncertaintyOfOutput, error;
+	sumError.push_back(0);
 
 	date_time subStart = start, subEnd = start; //start and end dates for the subset
 	subEnd.addSeconds(subSampleLength);
 	date_time outputPoint = subEnd; // output point time
 	outputPoint.addSeconds(outputDistance);
 	int stepsize = start.diffSeconds(end) / noItt;
-	cout << "stepsize:" << stepsize << endl;
+	//cout << "stepsize:" << stepsize << endl;
 
 	for (unsigned int i = 0; i < noItt; ++i)
 	{
-		cout << "subStart:" << subStart.getYearI() << "," << subStart.getMonthUI() << "," << subStart.getDayUI() << "," << subStart.getHourI() << "," << subStart.getMinuteI() << "," << subStart.getSecondI() << endl;
+		//cout << "subStart:" << subStart.getYearI() << "," << subStart.getMonthUI() << "," << subStart.getDayUI() << "," << subStart.getHourI() << "," << subStart.getMinuteI() << "," << subStart.getSecondI() << endl;
 		//cout << "subEnd:" << subEnd.getYearI() << "," << subEnd.getMonthUI() << "," << subEnd.getDayUI() << "," << subEnd.getHourI() << "," << subEnd.getMinuteI() << "," << subEnd.getSecondI() << endl;
-		stockSampler* subSet = sS->getSubset(subStart, subEnd, net->getNoInputs() - 1, 1);
+		stockSampler* subSet = sS->getSubset(subStart, subEnd, net->getNoInputs(), 1);
 		inputs = subSet->getPointsd();
 
 		//cout << "inputs:";
@@ -57,7 +58,7 @@ void skynet::train(date_time start, date_time end, unsigned int noItt, unsigned 
 			inputs[b] = normalize(inputs[b]);
 			//cout << inputs[b] << ",";
 		}
-		cout << endl;
+		//cout << endl;
 
 		output.push_back(normalize(sS->getValue(outputPoint, uncertaintyOfOutput)));
 
@@ -65,9 +66,12 @@ void skynet::train(date_time start, date_time end, unsigned int noItt, unsigned 
 		networkOutput = net->getOutputs();
 		networkOutputAnalysis.push_back(denormalize(networkOutput[0]));
 		outputAnalysis.push_back(denormalize(output[0]));
+
 		error = net->getError(output);
 		diffSquared.push_back(pow(denormalize(networkOutput[0])- denormalize(output[0]),2));
-		cout << "learningRate:" << learningRateFunction(error,learningRate) << endl;
+		sumError[0] += pow(denormalize(networkOutput[0]) - denormalize(output[0]), 2);
+		
+		//cout << "learningRate:" << learningRateFunction(error,learningRate) << endl;
 		net->train(output, learningRateFunction(error, learningRate));
 		//cout << "networkOutput:" << denormalize(networkOutput[0]) << " targetOutput" << denormalize(output[0]) << endl;
 		//cout << "error:" << error << endl << endl;
@@ -84,13 +88,16 @@ void skynet::train(date_time start, date_time end, unsigned int noItt, unsigned 
 	analysisData.push_back(networkOutputAnalysis);
 	analysisData.push_back(outputAnalysis);
 	analysisData.push_back(diffSquared);
-	createCSV(analysisData, "trainingData.csv");
+	analysisData.push_back(sumError);
+	sumError[0] = sqrt(sumError[0] / noItt);
+	analysisData.push_back(sumError);
+	createCSV(analysisData, outputFile);
 
-
+	return sumError[0];
 }
-void skynet::run(date_time start, date_time end, unsigned int noItt, unsigned int subSampleLength, unsigned int outputDistance)
+double skynet::run(date_time start, date_time end, unsigned int noItt, unsigned int subSampleLength, unsigned int outputDistance, const char* outputFile)
 {
-	vector<double> inputs, output, networkOutput, outputAnalysis, networkOutputAnalysis;
+	vector<double> inputs, output, networkOutput, outputAnalysis, networkOutputAnalysis, diffSquared, sumError;
 	double uncertaintyOfOutput;
 
 	date_time subStart = start, subEnd = start; //start and end dates for the subset
@@ -104,7 +111,7 @@ void skynet::run(date_time start, date_time end, unsigned int noItt, unsigned in
 	{
 		cout << "subStart:" << subStart.getYearI() << "," << subStart.getMonthUI() << "," << subStart.getDayUI() << "," << subStart.getHourI() << "," << subStart.getMinuteI() << "," << subStart.getSecondI() << endl;
 		//cout << "subEnd:" << subEnd.getYearI() << "," << subEnd.getMonthUI() << "," << subEnd.getDayUI() << "," << subEnd.getHourI() << "," << subEnd.getMinuteI() << "," << subEnd.getSecondI() << endl;
-		stockSampler* subSet = sS->getSubset(subStart, subEnd, net->getNoInputs() - 1, 1);
+		stockSampler* subSet = sS->getSubset(subStart, subEnd, net->getNoInputs(), 1);
 		inputs = subSet->getPointsd();
 
 		//cout << "inputs:";
@@ -122,6 +129,9 @@ void skynet::run(date_time start, date_time end, unsigned int noItt, unsigned in
 		networkOutputAnalysis.push_back(denormalize(networkOutput[0]));
 		outputAnalysis.push_back(denormalize(output[0]));
 
+		diffSquared.push_back(pow(denormalize(networkOutput[0]) - denormalize(output[0]), 2));
+		sumError[0] += pow(denormalize(networkOutput[0]) - denormalize(output[0]), 2);
+
 		//cout << "networkOutput:" << denormalize(networkOutput[0]) << " targetOutput" << denormalize(output[0]) << endl;
 
 
@@ -135,7 +145,13 @@ void skynet::run(date_time start, date_time end, unsigned int noItt, unsigned in
 	vector<vector<double>> analysisData;
 	analysisData.push_back(networkOutputAnalysis);
 	analysisData.push_back(outputAnalysis);
-	createCSV(analysisData, "runData.csv");
+	analysisData.push_back(diffSquared);
+	analysisData.push_back(sumError);
+	sumError[0] = sqrt(sumError[0] / noItt);
+	analysisData.push_back(sumError);
+	createCSV(analysisData, outputFile);
+
+	return sumError[0];
 }
 
 void skynet::load(const char*)
@@ -146,6 +162,11 @@ void skynet::load(const char*)
 void skynet::save(const char*)
 {
 
+}
+
+void skynet::reset()
+{
+	net->resetWeights();
 }
 
 double skynet::normalize(double val) // normalizes a value by the normalization scalar and offset
@@ -160,7 +181,7 @@ double skynet::denormalize(double val) // denormalizes a value by the normalizat
 
 double skynet::learningRateFunction(double totalError, double learningRate)
 {
-	return exponent(totalError, learningRate);
+	return independant(totalError, learningRate);
 }
 
 double skynet::exponent(double error, double learningRate)

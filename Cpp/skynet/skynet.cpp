@@ -99,6 +99,7 @@ double skynet::run(date_time start, date_time end, unsigned int noItt, unsigned 
 {
 	vector<double> inputs, output, networkOutput, outputAnalysis, networkOutputAnalysis, diffSquared, sumError;
 	double uncertaintyOfOutput;
+	sumError.push_back(0);
 
 	date_time subStart = start, subEnd = start; //start and end dates for the subset
 	subEnd.addSeconds(subSampleLength);
@@ -109,7 +110,7 @@ double skynet::run(date_time start, date_time end, unsigned int noItt, unsigned 
 
 	for (unsigned int i = 0; i < noItt; ++i)
 	{
-		cout << "subStart:" << subStart.getYearI() << "," << subStart.getMonthUI() << "," << subStart.getDayUI() << "," << subStart.getHourI() << "," << subStart.getMinuteI() << "," << subStart.getSecondI() << endl;
+		//cout << "subStart:" << subStart.getYearI() << "," << subStart.getMonthUI() << "," << subStart.getDayUI() << "," << subStart.getHourI() << "," << subStart.getMinuteI() << "," << subStart.getSecondI() << endl;
 		//cout << "subEnd:" << subEnd.getYearI() << "," << subEnd.getMonthUI() << "," << subEnd.getDayUI() << "," << subEnd.getHourI() << "," << subEnd.getMinuteI() << "," << subEnd.getSecondI() << endl;
 		stockSampler* subSet = sS->getSubset(subStart, subEnd, net->getNoInputs(), 1);
 		inputs = subSet->getPointsd();
@@ -118,18 +119,22 @@ double skynet::run(date_time start, date_time end, unsigned int noItt, unsigned 
 		for (unsigned int b = 0; b < inputs.size(); ++b) // normalize inputs
 		{
 			inputs[b] = normalize(inputs[b]);
-			//cout << inputs[b] << ",";
+			cout << inputs[b] << ",";
 		}
 		cout << endl;
 
 		output.push_back(normalize(sS->getValue(outputPoint, uncertaintyOfOutput)));
 
 		net->assignInputs(inputs);
+		//cout << "assigned inputs\n";
 		networkOutput = net->getOutputs();
+		//cout << "have outputs\n";
 		networkOutputAnalysis.push_back(denormalize(networkOutput[0]));
+		//cout << "push 1\n";
 		outputAnalysis.push_back(denormalize(output[0]));
-
+		//cout << "push 2\n";
 		diffSquared.push_back(pow(denormalize(networkOutput[0]) - denormalize(output[0]), 2));
+		//cout << "push 3\n";
 		sumError[0] += pow(denormalize(networkOutput[0]) - denormalize(output[0]), 2);
 
 		//cout << "networkOutput:" << denormalize(networkOutput[0]) << " targetOutput" << denormalize(output[0]) << endl;

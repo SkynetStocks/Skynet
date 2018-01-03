@@ -1,10 +1,11 @@
 #include "network.h"
 
 
-network::network(unsigned int nuIn, unsigned int nuOut, unsigned int nuHidden, unsigned int nuWid)
+network::network(unsigned int nuIn, unsigned int nuOut, unsigned int nuHidden, unsigned int nuWid, bool linearise)
 	:inputs(nuIn), outputs(nuOut), hiddenLayers(nuHidden), width(nuWid)
 {
 	//cout << "inputs:" << inputs << " outputs:" << outputs << " hiddenLayers:" << hiddenLayers << " width:" << width << endl;
+	linearNetworkLink = linearise;
 	vector<node*> newLayer;
 	for (unsigned int i = 0; i < outputs; ++i) //create output nodes
 	{
@@ -44,6 +45,22 @@ network::network(unsigned int nuIn, unsigned int nuOut, unsigned int nuHidden, u
 			nodeMesh[i][b]->assignRandomWeights();
 		}
 	}
+	//cout << "1\n";
+	if (linearNetworkLink == true) //if linear component of network is wanted
+	{
+		//itterate through output and link to input layers
+		for (unsigned int i = 0; i < nodeMesh[0].size(); ++i) //itterate through output nodes
+		{
+			//for each output node add input nodes
+			for (unsigned int b = 0; b < nodeMesh[nodeMesh.size() - 1].size(); ++b) //itterate through input nodes
+			{
+				//cout << i << ", " << b << endl;
+				//cout << nodeMesh[0][i] << endl;
+				nodeMesh[0][i]->addInputNode(nodeMesh[nodeMesh.size()-1][b]); //link input node to output node
+			}
+			nodeMesh[0][i]->assignRandomWeights();
+		}
+	}
 }
 
 
@@ -73,10 +90,21 @@ vector<double> network::getOutputs()
 {
 	//cout << "getting outputs\n";
 	vector<double> out;
-	for (unsigned int i = 0; i < outputs; ++i)
+	if (linearNetworkLink == true)
 	{
-		out.push_back(nodeMesh[0][i]->getOutput());
-		//cout << "getOutputs" << out[i] << endl;
+		for (unsigned int i = 0; i < outputs; ++i)
+		{
+			out.push_back(nodeMesh[0][i]->getOutput());
+			//cout << "getOutputs" << out[i] << endl;
+		}
+	}
+	else
+	{
+		for (unsigned int i = 0; i < outputs; ++i)
+		{
+			out.push_back(nodeMesh[0][i]->getOutput());
+			//cout << "getOutputs" << out[i] << endl;
+		}
 	}
 	return out;
 }
@@ -90,17 +118,30 @@ double  network::train(vector<double> expectedOutputs, double learningRate)
 	}
 
 	double totalError = quadraticCost( outputs, expectedOutputs);
-
-	for (unsigned int i = 0; i < nodeMesh[0].size(); ++i)
+	if (linearNetworkLink == true)
 	{
-		nodeMesh[0][i]->backPropogate(expectedOutputs[i]);
-	}
+		for (unsigned int i = 0; i < nodeMesh[0].size(); ++i)
+		{
+			nodeMesh[0][i]->backPropogate(expectedOutputs[i]);
+		}
 
-	for (unsigned int i = 0; i < nodeMesh[0].size(); ++i)
+		for (unsigned int i = 0; i < nodeMesh[0].size(); ++i)
+		{
+			nodeMesh[0][i]->updateWeights(learningRate);
+		}
+	}
+	else
 	{
-		nodeMesh[0][i]->updateWeights(learningRate);
-	}
+		for (unsigned int i = 0; i < nodeMesh[0].size(); ++i)
+		{
+			nodeMesh[0][i]->backPropogate(expectedOutputs[i]);
+		}
 
+		for (unsigned int i = 0; i < nodeMesh[0].size(); ++i)
+		{
+			nodeMesh[0][i]->updateWeights(learningRate);
+		}
+	}
 	return totalError;
 }
 

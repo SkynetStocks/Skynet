@@ -5,7 +5,7 @@ using namespace std;
 class network
 {
 public:
-	network(unsigned int nuIn, unsigned int nuOut, unsigned int nuHidden, unsigned int nuWid);
+	network(unsigned int nuIn, unsigned int nuOut, unsigned int nuHidden, unsigned int nuWid, bool linearise);
 	virtual ~network();
 	void assignInputs(vector<double> iN); //should change input to vector
 	vector<double> getOutputs();
@@ -20,6 +20,7 @@ public:
 	unsigned int getHiddenLayerWidth() { return width; }
 private:
 	const unsigned int inputs, outputs, hiddenLayers, width; //holds the defined number of inputs and outputs of the network
+	bool linearNetworkLink;
 	vector<vector<node*>> nodeMesh;
 
 	double quadraticCost(vector<double> output, vector<double> desiredOutput);

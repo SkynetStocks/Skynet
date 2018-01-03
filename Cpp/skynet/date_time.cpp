@@ -51,7 +51,7 @@ int date_time::diffSeconds(date_time val) //implementation is crap, new method d
 		++itt.d;
 
 	}
-	return diffDays * 24 * 60 * 60 + diffTime;
+	return diffDays * 24 * 60 * 60 - diffTime;
 }
 
 void date_time::addSeconds(second sVal) //better method needed

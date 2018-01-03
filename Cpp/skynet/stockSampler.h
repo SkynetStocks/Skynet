@@ -13,7 +13,12 @@ public:
 	stockNode() {};
 	stockNode(date_time dt, double val) :d(dt), stockVal(val){};
 	stockNode(date_time dt, double val, double unVal) :d(dt), stockVal(val), uncertainty(unVal){};
-	virtual ~stockNode() { if(next!=nullptr)delete next; }
+	virtual ~stockNode() {
+		if (next != nullptr)
+		{
+			delete next;
+		}
+	}
 	//get
 	inline date_time getDate() const{ return d; }
 	inline double getValue() const{ return stockVal; }
@@ -58,9 +63,9 @@ private:
 	double areaLinear(double start, double end, double slope);
 	double areaConstant(double start, double end, double slope);
 
-	double getNextSampleTime(double, double, double);
-	double nextExponentialPoint(double, double, double);
-	double nextLinearPoint(double, double, double);
-	double nextConstantPoint(double, double, double);
+	double getNextSampleTime(double, double, double, double);
+	double nextExponentialPoint(double, double, double, double);
+	double nextLinearPoint(double, double, double, double);
+	double nextConstantPoint(double, double, double, double);
 };
 

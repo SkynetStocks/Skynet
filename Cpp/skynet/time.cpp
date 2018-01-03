@@ -81,7 +81,7 @@ int T::time::timeDiffSec(time termT)
 	cpy.subSecond(termT.getSecond());
 	cpy.subMinute(termT.getMinute());
 	cpy.subHour(termT.getHour()); //make cpy the difference in time between termT and this
-	int val = cpy.getHourI() * 24 * 60 + cpy.getMinuteI() * 60 + cpy.getSecondI();
+	int val = cpy.getHourI() * 60 * 60 + cpy.getMinuteI() * 60 + cpy.getSecondI();
 	return val;
 }
 

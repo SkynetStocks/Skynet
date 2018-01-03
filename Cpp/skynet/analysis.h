@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <fstream>
+#include <iostream>
 using namespace std;
 
 inline double MAX(double val1, double val2)
@@ -31,15 +32,14 @@ bool createCSV(vector<vector<itemtype>> data, const char* filename)
 		{
 			for (unsigned int b = 0; b < data.size(); ++b) // go along rows
 			{
-				if (data[b].size() >= maxSize)
+				if (data[b].size() > i)
 				{
 					file << data[b][i] << ";";
 				}
 			}
 			file << endl;
 		}
-
-
+	
 		file.close();
 		return true;
 	}

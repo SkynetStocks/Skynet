@@ -1,0 +1,25 @@
+﻿  year.cpp
+c:\users\tomto\documents\visual studio 2017\projects\stockproject\stockproject\year.cpp(100): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  time.cpp
+c:\users\tomto\documents\visual studio 2017\projects\stockproject\stockproject\time.cpp(170): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  stockSampler.cpp
+c:\users\tomto\documents\visual studio 2017\projects\stockproject\stockproject\stocksampler.cpp(240): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  stockLoader.cpp
+c:\users\tomto\documents\visual studio 2017\projects\stockproject\stockproject\stockloader.cpp(191): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  skynet.cpp
+c:\users\tomto\documents\visual studio 2017\projects\stockproject\stockproject\skynet.cpp(180): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  node.cpp
+c:\users\tomto\documents\visual studio 2017\projects\stockproject\stockproject\neuralnetwork\node.cpp(131): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  network.cpp
+c:\users\tomto\documents\visual studio 2017\projects\stockproject\stockproject\neuralnetwork\network.cpp(121): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  month.cpp
+c:\users\tomto\documents\visual studio 2017\projects\stockproject\stockproject\month.cpp(101): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  main.cpp
+c:\users\tomto\documents\visual studio 2017\projects\stockproject\stockproject\main.cpp(24): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  day.cpp
+c:\users\tomto\documents\visual studio 2017\projects\stockproject\stockproject\day.cpp(100): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  date_time.cpp
+c:\users\tomto\documents\visual studio 2017\projects\stockproject\stockproject\date_time.cpp(146): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  date.cpp
+c:\users\tomto\documents\visual studio 2017\projects\stockproject\stockproject\date.cpp(226): fatal error C1010: unexpected end of file while looking for precompiled header. Did you forget to add '#include "stdafx.h"' to your source?
+  Generating Code...

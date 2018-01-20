@@ -1,0 +1,9 @@
+﻿  node.cpp
+neuralNetwork\node.cpp(49): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+neuralNetwork\node.cpp(68): warning C4244: 'argument': conversion from 'std::chrono::system_clock::rep' to 'unsigned int', possible loss of data
+  Generating code
+  2 of 906 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  StockProject.vcxproj -> C:\Users\tomto\documents\visual studio 2017\Projects\StockProject\x64\Release\StockProject.exe
